@@ -14,6 +14,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class App extends Application {
         new EuclideanGraphPointScorer(),
         new EuclideanGraphPointScorer());
 
-        List<GraphPoint> route = routeFinder.findRoute(board.getBalloonGraph().getNode("0-0"),board.getBalloonGraph().getNode("19-19"));
+        List<GraphPoint> route = routeFinder.findRoute(board.getBalloonGraph().getNode("19-0"),board.getBalloonGraph().getNode("0-19"));
 
         Balloon balloon;
         Circle balloonDisplay;
@@ -53,11 +54,12 @@ public class App extends Application {
 
 
         Polyline routePolyLine = graphPointRouteToPolyLine(route);
-        PathTransition balloonTransition = new PathTransition();
-        balloonTransition.setNode(balloonDisplay);
-        balloonTransition.setDuration(Duration.seconds(balloon.getSpeed()*(routePolyLine.getPoints().size()/2))); // タイミング
-        balloonTransition.setPath(routePolyLine);
-        balloonTransition.setInterpolator(Interpolator.LINEAR);
+        // PathTransition balloonTransition = new PathTransition();
+
+
+        // balloonTransition.setNode(balloonDisplay);
+        // balloonTransition.setPath(routePolyLine);
+        // balloonTransition.setInterpolator(Interpolator.LINEAR);
         
 
         /*
@@ -67,7 +69,27 @@ public class App extends Application {
          */
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
-        balloonTransition.play();
+        // balloonTransition.play();
+
+        List<Circle> balloons = new ArrayList<Circle>();
+        for(int i = 0; i < 100; i++) {
+            balloons.add(new Circle(5,Color.BLUE));
+            root.getChildren().add(balloons.get(i));
+            // applyAndPlayBalloonTransition(balloons.get(i), routePolyLine, .1);
+            // try {
+            //     Thread.sleep(500);
+            // } catch(InterruptedException e) { /* do nothing */ }
+        }
+
+        Thread balloonProducerThread = new Thread(new BalloonProducer(balloons, routePolyLine, .1, 500));
+        balloonProducerThread.start();
+        // transition for the animation should be done with a single transition object... right?
+        // transition objects can only have one node that they're bound to, so it wouldn't make a whole lot of sense
+
+        // if that wasn't the case...
+
+        // ok so we'll just make method that binds a transition object to a balloon and then plays it (effectively changing the movement...)
+        // cool
 
         /* Should find a way to pass the balloon object to the thread (could just define a new runnable implementation and pass through constructor) */
         // Thread t = new Thread(()->{
@@ -88,6 +110,36 @@ public class App extends Application {
         // t.start();
     }
 
+    private class BalloonProducer implements Runnable {
+
+        private List<Circle> balloons;
+        private Polyline rawRoute;
+        private double speed;
+        private int delay;
+
+        public BalloonProducer(List<Circle> balloons, Polyline rawRoute, double speed, int delay) {
+            this.balloons = balloons;
+            this.rawRoute = rawRoute;
+            this.speed = speed;
+            this.delay = delay;
+        }
+
+        public List<Circle> getBalloonsList() { return this.balloons; }
+
+        @Override
+        public void run() {
+            for(Circle b : balloons) {
+                applyAndPlayBalloonTransition(b, rawRoute, speed);
+
+                try {
+                    Thread.sleep(delay);
+                } catch(InterruptedException e) {
+                    /* Do nothing! */
+                }
+            }
+        }
+    }
+
     /* Not using this for the time being, it should just be easier to use transitions instead */
     // private class AnimationHandle extends AnimationTimer {
     //     @Override
@@ -98,6 +150,16 @@ public class App extends Application {
     //         balloonDisplay.setTranslateY(balloon.getyPosition());
     //     }
     // }
+    
+    public static Circle applyAndPlayBalloonTransition(Circle balloon, Polyline rawRoute, double speed) { // just treat circle objects as balloons, that is a pretty poor design pattern but whatever
+        PathTransition balloonTransition = new PathTransition();
+        balloonTransition.setNode(balloon);
+        balloonTransition.setDuration(Duration.seconds(speed*(rawRoute.getPoints().size()/2))); // タイミング
+        balloonTransition.setPath(rawRoute);
+        balloonTransition.setInterpolator(Interpolator.LINEAR);
+        balloonTransition.play();
+        return balloon; // return passed Circle for method chaining
+    }
 
     public static void displayBoard(Group root, Board board, int size) {
 
