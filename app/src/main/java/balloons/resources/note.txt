@@ -1,0 +1,5 @@
+this folder should contain all the image files used for the game
+
+pretty much anything that the image methods would be accessing should go in here!
+
+- Wyatt

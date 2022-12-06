@@ -23,3 +23,19 @@ public void start(Stage primaryStage) {
     // Am I good at this? Or is it something else? I don't know dude that just doesn't make sense and I'm shaking from a complete absence of stuff going on that happens for other stuff and that is how it works for the most part and I'm totally stressed I can't stop and focus on the task at hand instead I'm just writing out my thoughts on this fucking document that doesn't need to be written out what the fuck happened to my english class I really hope I don't fail it I won't fail it why would that happen? I don't know anymore I missed both my classes yesterday and I'm stressed fuck fuck 
 }
 ```
+
+ok so fun fact you can't actually generate javadoc through gradle if there are any characters using incorrect encoding, soooooo remove all of those if you wanna have javadoc generation...
+
+
+
+in order to transfer this fucking spaghetti sausage of a project to a gradle configuration... a couple steps need to be made
+
+
+1) refactor, refactor everything. Make sure that all names are fully qualified and every fucking method has a javadoc attachment
+2) Reorganize program structure, astar shouldn't be in a package
+3) Don't utilize non-UTF8 characters for this project
+4) Rewrite entity files
+please use fully qualified names, so far the github repository is in working condition along with everything else
+
+gradle build is functiona!!! LETS GOOOOOOOOO
+
