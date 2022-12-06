@@ -42,3 +42,5 @@ public class App extends Application {
 // I'm not with them
 
 // it's whatever....
+
+// new note 6th of December (it's one o'clock in the morning and that is totally fine)
