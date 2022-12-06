@@ -1,6 +1,7 @@
 package balloons;
 
 import javafx.animation.AnimationTimer;
+import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
 import javafx.application.Application;
 import javafx.scene.Group; 
@@ -18,6 +19,7 @@ import java.util.List;
 
 import balloons.entities.Balloon;
 import balloons.playingfield.*;
+import balloons.astar.*;
 
 /**
  * Main App class that contains displayable implementaiton of the project (essentially everything comes together here!)
@@ -27,44 +29,75 @@ import balloons.playingfield.*;
  */
 public class App extends Application {
 
-    private static Balloon balloon;
-    private static Circle balloonDisplay;
 
     @Override
     public void start(Stage primaryStage) {
         Group root = new Group();
 
         Board board = new Board(Board.createGrid(20,20,50,10));
-        displayBoard(root, board,5);
+        RouteFinder<GraphPoint> routeFinder = new RouteFinder<GraphPoint>(board.getBalloonGraph(),
+        new EuclideanGraphPointScorer(),
+        new EuclideanGraphPointScorer());
 
-        balloon = new Balloon(3,5);
+        List<GraphPoint> route = routeFinder.findRoute(board.getBalloonGraph().getNode("0-0"),board.getBalloonGraph().getNode("19-19"));
+
+        Balloon balloon;
+        Circle balloonDisplay;
+
+        displayBoard(root, board,5);
+        balloon = new Balloon(1,5);
         balloonDisplay = new Circle(5,Color.GREEN);
         root.getChildren().add(balloonDisplay);
 
         // new AnimationHandle().start(); // display game
 
-        Polyline routePolyLine = new Polyline();
 
-        routePolyLine.getPoints().addAll
-
+        Polyline routePolyLine = graphPointRouteToPolyLine(route);
         PathTransition balloonTransition = new PathTransition();
         balloonTransition.setNode(balloonDisplay);
-        balloonTransition.setDuration(Duration.seconds(balloon.getSpeed()));
+        balloonTransition.setDuration(Duration.seconds(balloon.getSpeed()*(routePolyLine.getPoints().size()/2))); // タイミング
         balloonTransition.setPath(routePolyLine);
+        balloonTransition.setInterpolator(Interpolator.LINEAR);
+        
 
+        /*
+         * Ok, so in order to get this to function like an actual game, there should be some stuff that needs to get done first
+         * 
+         * Balloons position shouldn't actually matter, we can just treat the node as an actual balloon.
+         */
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
+        balloonTransition.play();
+
+        /* Should find a way to pass the balloon object to the thread (could just define a new runnable implementation and pass through constructor) */
+        // Thread t = new Thread(()->{
+ 
+           
+        //     while(true) {
+        //         System.out.println(App.balloonDisplay.getTranslateX());
+
+        //         try {
+        //             Thread.sleep(100);
+        //         } catch(InterruptedException e) { /* do nothing */}
+
+        //     }
+
+        // });
+
+
+        // t.start();
     }
 
-    private class AnimationHandle extends AnimationTimer {
-        @Override
-        public void handle(long currentTime) {
-            balloon.setxPosition(balloon.getxPosition()+balloon.getSpeed());
-            balloon.setyPosition(balloon.getyPosition()+balloon.getSpeed());
-            balloonDisplay.setTranslateX(balloon.getxPosition());
-            balloonDisplay.setTranslateY(balloon.getyPosition());
-        }
-    }
+    /* Not using this for the time being, it should just be easier to use transitions instead */
+    // private class AnimationHandle extends AnimationTimer {
+    //     @Override
+    //     public void handle(long currentTime) {
+    //         balloon.setxPosition(balloon.getxPosition()+balloon.getSpeed());
+    //         balloon.setyPosition(balloon.getyPosition()+balloon.getSpeed());
+    //         balloonDisplay.setTranslateX(balloon.getxPosition());
+    //         balloonDisplay.setTranslateY(balloon.getyPosition());
+    //     }
+    // }
 
     public static void displayBoard(Group root, Board board, int size) {
 
@@ -93,11 +126,11 @@ public class App extends Application {
     }
 
     public Polyline graphPointRouteToPolyLine(List<GraphPoint> route) {
-        Double[] rawRoute = new Double[route.size()*2];
+        ArrayList<Double> rawRoute = new ArrayList<Double>();
 
-        for(int i = 0; i < route.size(); i += 2) {
-            rawRoute[i] = route.get(i).getxPosition();
-            rawRoute[i+1] = route.get(i).getyPosition();
+        for(GraphPoint routeNode : route) {
+            rawRoute.add(routeNode.getxPosition());
+            rawRoute.add(routeNode.getyPosition());
         }
 
         Polyline polyline = new Polyline();
