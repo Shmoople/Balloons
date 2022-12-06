@@ -84,6 +84,8 @@ public class RouteFinder<T extends GraphNode> {
         
         // return null; // well... loks like there wasn't a route! (I'll make a handle for this...)
     }
+
+    
 }
 
 // 無い
