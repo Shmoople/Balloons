@@ -4,5 +4,5 @@
 # Ignore Gradle build output directory
 build
 
-# Ignore Java bytecode output directory
-bin
+# Ignore Java bytecode
+*.class

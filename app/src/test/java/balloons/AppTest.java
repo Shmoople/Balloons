@@ -4,10 +4,12 @@
 package balloons;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*; // static imports make my eyes bleed
 
 class AppTest {
     @Test boolean appRuns() {
-        return false; // I don't know what the fuck this is supposed to do ?? I mean whatever
+        assert(true);
+        org.junit.jupiter.api.Assertions.assertTrue(false);
+        return false;
     }
 }     
