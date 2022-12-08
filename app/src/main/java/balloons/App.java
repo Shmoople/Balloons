@@ -3,10 +3,12 @@ package balloons;
 import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.scene.Group; 
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -42,14 +44,31 @@ public class App extends Application {
     public void start(Stage primaryStage) { // this gets run
         Group root = new Group();
 
-        Board board = new Board(Board.createGrid(20,20,50,10));
+        Board board = new Board(Board.createGrid(21,21,50,10));
         RouteFinder<GraphPoint> routeFinder = new RouteFinder<GraphPoint>(board.getBalloonGraph(),
         new EuclideanGraphPointScorer(),
         new EuclideanGraphPointScorer());
 
-        List<GraphPoint> route = routeFinder.findRoute(board.getBalloonGraph().getNode("19-0"),board.getBalloonGraph().getNode("0-19"));
+        // List<GraphPoint> route = routeFinder.findRoute(board.getBalloonGraph().getNode("19-0"),board.getBalloonGraph().getNode("0-19"));
 
         displayBoard(root, board,3);
+
+        /* SETUP ROUTES */
+
+        /* STAGE 1 ROUTE */
+        List<GraphPoint> route1 = routeFinder.findRoute(board.getBalloonGraph().getNode("8-0"),board.getBalloonGraph().getNode("8-7"));
+
+        route1.addAll(routeFinder.findRoute(board.getBalloonGraph().getNode("8-8"),board.getBalloonGraph().getNode("3-8")));
+
+        route1.addAll(routeFinder.findRoute(board.getBalloonGraph().getNode("3-9"),board.getBalloonGraph().getNode("3-19")));
+
+        route1.addAll(routeFinder.findRoute(board.getBalloonGraph().getNode("4-19"),board.getBalloonGraph().getNode("13-19")));
+        
+        route1.addAll(routeFinder.findRoute(board.getBalloonGraph().getNode("13-18"),board.getBalloonGraph().getNode("13-15")));
+
+        route1.addAll(routeFinder.findRoute(board.getBalloonGraph().getNode("14-15"),board.getBalloonGraph().getNode("20-15")));
+
+        route1.addAll(routeFinder.findRoute(board.getBalloonGraph().getNode("20-15"),board.getBalloonGraph().getNode("20-0")));
 
 
         /* SETUP BACKGROUND */
@@ -64,16 +83,24 @@ public class App extends Application {
 
         Image imageImage = new Image(coolStream);
         ImageView background = new ImageView();
+
+
         background.setPreserveRatio(true);
+        background.setX(175);
+        background.setY(175);
+        background.setScaleX(1.5);
+        background.setScaleY(1.5);
         background.setImage(imageImage);
+
+        primaryStage.setResizable(false);
         root.getChildren().add(background);
 
 
         /* SETUP BALLOONS */
         
-        Polyline routePolyLine = graphPointRouteToPolyLine(route);
+        Polyline routePolyLine = graphPointRouteToPolyLine(route1);
 
-        BalloonProducer bp = new BalloonProducer(root, balloons.entities.Round.S1R5, routePolyLine, 500);
+        BalloonProducer bp = new BalloonProducer(root, balloons.entities.Round.S2R5, routePolyLine, 500);
         Thread balloonProducerThread = new Thread(bp);
 
         Scene scene = new Scene(root);
@@ -83,32 +110,6 @@ public class App extends Application {
         primaryStage.show();
         /* START SENDING BALLOONS */
         balloonProducerThread.start();
-
-        // transition for the animation should be done with a single transition object... right?
-        // transition objects can only have one node that they're bound to, so it wouldn't make a whole lot of sense
-
-        // if that wasn't the case...
-
-        // ok so we'll just make method that binds a transition object to a balloon and then plays it (effectively changing the movement...)
-        // cool
-
-        /* Should find a way to pass the balloon object to the thread (could just define a new runnable implementation and pass through constructor) */
-        // Thread t = new Thread(()->{
- 
-           
-        //     while(true) {
-        //         System.out.println(App.balloonDisplay.getTranslateX());
-
-        //         try {
-        //             Thread.sleep(100);
-        //         } catch(InterruptedException e) { /* do nothing */}
-
-        //     }
-
-        // });
-
-
-        // t.start();
     }
 
     private class BalloonProducer implements Runnable {
@@ -151,6 +152,9 @@ public class App extends Application {
                         case 6: // purple
                             stream = new FileInputStream("./src/main/java/balloons/resources/images/Purple Balloon.png");
                             break;
+                        case 20:
+                            stream = new FileInputStream("./src/main/java/balloons/resources/images/Zeplin.png");
+                            break;
                         default: // red
                             stream = new FileInputStream("./src/main/java/balloons/resources/images/Red Balloon.png");
                             break;
@@ -164,9 +168,11 @@ public class App extends Application {
 
                 Image image = new Image(stream);
                 ImageView imageView = new ImageView();
-
+                imageView.visibleProperty().set(false);
                 imageView.setImage(image);
                 imageView.setPreserveRatio(true);
+                imageView.setScaleX(2);
+                imageView.setScaleY(2);
                 balloons.add(imageView);
                 root.getChildren().add(imageView);
             }
@@ -182,7 +188,7 @@ public class App extends Application {
 
                 System.out.println("Inside for loop");
 
-                applyAndPlayBalloonTransition(balloons.get(i), rawRoute, balloonObjects[i].getSpeed());
+                applyAndPlayBalloonTransition(balloons.get(i), rawRoute, balloonObjects[i].getSpeed(),balloonObjects[i].getHitPoints());
 
                 try {
                     Thread.sleep(delay);
@@ -208,14 +214,22 @@ public class App extends Application {
     //     }
     // }
     
-    public static ImageView applyAndPlayBalloonTransition(ImageView balloon, Polyline rawRoute, double speed) { // just treat circle objects as balloons, that is a pretty poor design pattern but whatever
+    public static ImageView applyAndPlayBalloonTransition(ImageView balloon, Polyline rawRoute, double speed, double health) { // just treat circle objects as balloons, that is a pretty poor design pattern but whatever
 
         PathTransition balloonTransition = new PathTransition();
         balloonTransition.setNode(balloon);
         balloonTransition.setDuration(Duration.seconds(speed*(rawRoute.getPoints().size()/2))); // タイミング
         balloonTransition.setPath(rawRoute);
         balloonTransition.setInterpolator(Interpolator.LINEAR);
+        balloon.visibleProperty().set(true);
         balloonTransition.play();
+        balloon.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                System.out.println(""+health);
+                balloon.visibleProperty().set(false);
+            }
+        }); 
         return balloon; // return passed Circle for method chaining
     }
 
