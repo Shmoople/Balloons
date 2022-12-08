@@ -202,19 +202,8 @@ public class App extends Application {
 
         }
     }
-
-    /* Not using this for the time being, it should just be easier to use transitions instead */
-    // private class AnimationHandle extends AnimationTimer {
-    //     @Override
-    //     public void handle(long currentTime) {
-    //         balloon.setxPosition(balloon.getxPosition()+balloon.getSpeed());
-    //         balloon.setyPosition(balloon.getyPosition()+balloon.getSpeed());
-    //         balloonDisplay.setTranslateX(balloon.getxPosition());
-    //         balloonDisplay.setTranslateY(balloon.getyPosition());
-    //     }
-    // }
     
-    public static ImageView applyAndPlayBalloonTransition(ImageView balloon, Polyline rawRoute, double speed, double health) { // just treat circle objects as balloons, that is a pretty poor design pattern but whatever
+    public static ImageView applyAndPlayBalloonTransition(ImageView balloon, Polyline rawRoute, double speed, int health) { // just treat circle objects as balloons, that is a pretty poor design pattern but whatever
 
         PathTransition balloonTransition = new PathTransition();
         balloonTransition.setNode(balloon);
@@ -223,15 +212,12 @@ public class App extends Application {
         balloonTransition.setInterpolator(Interpolator.LINEAR);
         balloon.visibleProperty().set(true);
         balloonTransition.play();
-        balloon.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                System.out.println(""+health);
-                balloon.visibleProperty().set(false);
-            }
-        }); 
+
+        balloon.setOnMouseClicked(new BalloonOnClickEventHandler(balloon, health));
         return balloon; // return passed Circle for method chaining
     }
+
+    
 
     public static void displayBoard(Group root, Board board, int size) {
 
@@ -278,6 +264,25 @@ public class App extends Application {
      * @param args arguments passed to launch() static method
      */
     public static void main(String[] args) { App.launch(args); }
+}
+
+class BalloonOnClickEventHandler implements EventHandler<MouseEvent> {
+
+    private Integer hitPoints;
+    private ImageView balloon;
+
+    public BalloonOnClickEventHandler(ImageView balloon, Integer hitPoints) {
+        this.hitPoints = hitPoints;
+        this.balloon = balloon;
+    }
+    @Override
+    public void handle(MouseEvent event) {
+        System.out.println(hitPoints);
+        hitPoints--;
+        if(hitPoints <= 0) {
+            balloon.visibleProperty().set(false);
+        }
+    }
 }
 
 // 無
