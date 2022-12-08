@@ -58,9 +58,29 @@ public class App extends Application {
         // new AnimationHandle().start(); // display game
 
 
+        InputStream coolStream = null; // get ready for a nullpointer exception...
+        try {
+            coolStream = new FileInputStream("./src/main/java/balloons/resources/images/Finished_Background_for_bloons.png");
+        } catch (FileNotFoundException e) {
+            // oh no...
+            System.out.println("Could not find the specified file with this file path!");
+            e.printStackTrace();
+        }
+
+
+        Image imageImage = new Image(coolStream);
+
+        ImageView background = new ImageView();
+
+        background.setImage(imageImage);
+        
+        root.getChildren().add(background);
+
+
         Polyline routePolyLine = graphPointRouteToPolyLine(route);
         // PathTransition balloonTransition = new PathTransition();
 
+        Balloon balloonOne = new Balloon(3,2,0,0,3);
 
         // balloonTransition.setNode(balloonDisplay);
         // balloonTransition.setPath(routePolyLine);
@@ -116,7 +136,7 @@ public class App extends Application {
             //     Thread.sleep(500);
             // } catch(InterruptedException e) { /* do nothing */ }
         }
-        BalloonProducer bp = new BalloonProducer(balloons, routePolyLine, 1, 500);
+        BalloonProducer bp = new BalloonProducer(balloons, routePolyLine, 1, 250);
         Thread balloonProducerThread = new Thread(bp);
         balloonProducerThread.start();
 

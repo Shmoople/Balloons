@@ -29,7 +29,7 @@ public class Balloon {
     public void setValue(int value) {
         this.value = value;
     }
-    
+
     public void setyPosition(double yPosition) { this.yPosition = yPosition; }
 
     public double getxPosition() { return xPosition; }
@@ -50,4 +50,13 @@ public class Balloon {
                 "\n\thitPoints: "+hitPoints+
                 "\n\tposition: ("+xPosition+","+yPosition+")\n}";
     }
+
+    
+}
+
+
+
+class Round {
+
+    public Balloon createBlueBalloon() { return new Balloon(3,3,0,0,3); }
 }
