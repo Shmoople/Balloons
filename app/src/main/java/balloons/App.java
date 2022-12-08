@@ -1,6 +1,5 @@
 package balloons;
 
-import javafx.animation.AnimationTimer;
 import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
 import javafx.application.Application;
@@ -71,6 +70,7 @@ public class App extends Application {
         Image imageImage = new Image(coolStream);
 
         ImageView background = new ImageView();
+        background.setPreserveRatio(true);
 
         background.setImage(imageImage);
         
