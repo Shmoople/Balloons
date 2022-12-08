@@ -6,20 +6,30 @@ public class Balloon {
     private double yPosition; // rather than using a Point2D class, instead use fields for mutable operations!
     private double speed; // speed of the balloon
     private int hitPoints; // amount of hitpoints the balloon has
+    private int value;
 
-    public Balloon(double speed, int hitPoints, double xPosition, double yPosition) {
+    public Balloon(double speed, int hitPoints, double xPosition, double yPosition, int value) {
         this.speed = speed;
         this.hitPoints = hitPoints;
         this.xPosition = xPosition;
         this.yPosition = yPosition;
+        this.value = value;
     }
 
     public Balloon(double speed, int hitPoints) {
-        this(speed, hitPoints, 0, 0);
+        this(speed, hitPoints, 0, 0, 1);
     }
 
     public void setxPosition(double xPosition) { this.xPosition = xPosition; }
 
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
+    }
+    
     public void setyPosition(double yPosition) { this.yPosition = yPosition; }
 
     public double getxPosition() { return xPosition; }

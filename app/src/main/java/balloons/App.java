@@ -37,7 +37,7 @@ public class App extends Application {
 
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) { // this gets run
         Group root = new Group();
 
         Board board = new Board(Board.createGrid(20,20,50,10));
@@ -50,7 +50,7 @@ public class App extends Application {
         Balloon balloon;
         Circle balloonDisplay;
 
-        displayBoard(root, board,5);
+        displayBoard(root, board,3);
         balloon = new Balloon(1,5);
         balloonDisplay = new Circle(5,Color.GREEN);
         root.getChildren().add(balloonDisplay);
@@ -81,12 +81,14 @@ public class App extends Application {
         /* THIS CODE RIGHT HERE IS SUPER UNSAFE BUT WHATEVER LETS JUST HOPE THE RELATIVE PATH WORKS! */
         InputStream stream = null; // get ready for a nullpointer exception...
         try {
-            stream = new FileInputStream("./src/main/java/balloons/resources/images/Green Balloon.png");
+            stream = new FileInputStream("./src/main/java/balloons/resources/images/Blue Balloon.png");
         } catch (FileNotFoundException e) {
             // oh no...
             System.out.println("Could not find the specified file with this file path!");
             e.printStackTrace();
         }
+
+
         Image image = new Image(stream);
 
         for(int i = 0; i < 100; i++) {
@@ -104,8 +106,8 @@ public class App extends Application {
             ImageView imageView = new ImageView();
             imageView.setImage(image);
             imageView.setPreserveRatio(true);
-            imageView.setFitHeight(100);
-            imageView.setFitWidth(100);
+            // imageView.setFitHeight(100);
+            // imageView.setFitWidth(100);
 
             balloons.add(imageView); // imageview shouldn't be that different than using a circle object (just need to load the image with a file loader class)
             root.getChildren().add(balloons.get(i));
@@ -114,9 +116,12 @@ public class App extends Application {
             //     Thread.sleep(500);
             // } catch(InterruptedException e) { /* do nothing */ }
         }
-
-        Thread balloonProducerThread = new Thread(new BalloonProducer(balloons, routePolyLine, .1, 500));
+        BalloonProducer bp = new BalloonProducer(balloons, routePolyLine, 1, 500);
+        Thread balloonProducerThread = new Thread(bp);
         balloonProducerThread.start();
+
+        double xpositionoffirstballoon = bp.getBalloonsList().get(0).getTranslateX();
+
         // transition for the animation should be done with a single transition object... right?
         // transition objects can only have one node that they're bound to, so it wouldn't make a whole lot of sense
 
