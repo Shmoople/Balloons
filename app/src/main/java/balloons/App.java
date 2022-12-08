@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import balloons.entities.*;
 
 import balloons.entities.Balloon;
 import balloons.playingfield.*;
@@ -76,67 +77,10 @@ public class App extends Application {
         
         root.getChildren().add(background);
 
-
-        Polyline routePolyLine = graphPointRouteToPolyLine(route);
-        // PathTransition balloonTransition = new PathTransition();
-
-        Balloon balloonOne = new Balloon(3,2,0,0,3);
-
-        // balloonTransition.setNode(balloonDisplay);
-        // balloonTransition.setPath(routePolyLine);
-        // balloonTransition.setInterpolator(Interpolator.LINEAR);
         
+        Polyline routePolyLine = graphPointRouteToPolyLine(route);
 
-        /*
-         * Ok, so in order to get this to function like an actual game, there should be some stuff that needs to get done first
-         * 
-         * Balloons position shouldn't actually matter, we can just treat the node as an actual balloon.
-         */
-        primaryStage.setScene(new Scene(root));
-        primaryStage.show();
-        // balloonTransition.play();
-
-        List<ImageView> balloons = new ArrayList<ImageView>();
-
-        /* THIS CODE RIGHT HERE IS SUPER UNSAFE BUT WHATEVER LETS JUST HOPE THE RELATIVE PATH WORKS! */
-        InputStream stream = null; // get ready for a nullpointer exception...
-        try {
-            stream = new FileInputStream("./src/main/java/balloons/resources/images/Blue Balloon.png");
-        } catch (FileNotFoundException e) {
-            // oh no...
-            System.out.println("Could not find the specified file with this file path!");
-            e.printStackTrace();
-        }
-
-
-        Image image = new Image(stream);
-
-        for(int i = 0; i < 100; i++) {
-            /*
-             *  InputStream stream = new FileInputStream("D:\images\elephant.jpg");
-                Image image = new Image(stream);
-
-                //Creating the image view
-                ImageView imageView = new ImageView();
-
-                //Setting image to the image view
-                imageView.setImage(image);
-            */
-
-            ImageView imageView = new ImageView();
-            imageView.setImage(image);
-            imageView.setPreserveRatio(true);
-            // imageView.setFitHeight(100);
-            // imageView.setFitWidth(100);
-
-            balloons.add(imageView); // imageview shouldn't be that different than using a circle object (just need to load the image with a file loader class)
-            root.getChildren().add(balloons.get(i));
-            // applyAndPlayBalloonTransition(balloons.get(i), routePolyLine, .1);
-            // try {
-            //     Thread.sleep(500);
-            // } catch(InterruptedException e) { /* do nothing */ }
-        }
-        BalloonProducer bp = new BalloonProducer(balloons, routePolyLine, 1, 250);
+        BalloonProducer bp = new BalloonProducer();
         Thread balloonProducerThread = new Thread(bp);
         balloonProducerThread.start();
 
@@ -170,23 +114,78 @@ public class App extends Application {
     private class BalloonProducer implements Runnable {
 
         private List<ImageView> balloons;
+        private Balloon[] balloonObjects;
         private Polyline rawRoute;
         private double speed;
         private int delay;
 
-        public BalloonProducer(List<ImageView> balloons, Polyline rawRoute, double speed, int delay) {
+        public BalloonProducer(Polyline rawRoute, double speed, int delay) {
             this.balloons = balloons;
             this.rawRoute = rawRoute;
             this.speed = speed;
             this.delay = delay;
         }
 
+        public BalloonProducer(Group root, Balloon[] balloonObjects, Polyline rawRoute, int delay) {
+
+            // this()
+            this.balloonObjects = balloonObjects;
+            List<ImageView> balloons = new ArrayList<ImageView>();
+
+            /* THIS CODE RIGHT HERE IS SUPER UNSAFE BUT WHATEVER LETS JUST HOPE THE RELATIVE PATH WORKS! */
+
+            for(Balloon b : balloonObjects) {
+
+                InputStream stream = null; // get ready for a nullpointer exception...
+                try {
+                    switch(b.getHitPoints()) {
+                        case 1: // red
+                            stream = new FileInputStream("./src/main/java/balloons/resources/images/Red Balloon.png");
+                            break;
+                        case 2: // orange
+
+                            stream = new FileInputStream("./src/main/java/balloons/resources/images/Orange Balloon.png");
+                            break;
+                        case 3: // yellow
+                            stream = new FileInputStream("./src/main/java/balloons/resources/images/Yellow Balloon.png");
+                            break;
+                        case 4: // green
+                            stream = new FileInputStream("./src/main/java/balloons/resources/images/Green Balloon.png");
+                            break;
+                        case 5: // blue
+                            stream = new FileInputStream("./src/main/java/balloons/resources/images/Blue Balloon.png");
+                            break;
+                        case 6: // purple
+                            stream = new FileInputStream("./src/main/java/balloons/resources/images/Purple Balloon.png");
+                            break;
+                        default: // red
+                            stream = new FileInputStream("./src/main/java/balloons/resources/images/Red Balloon.png");
+                            break;
+                    }
+                } catch (FileNotFoundException e) {
+                    // oh no...
+                    System.out.println("Could not find the specified file with this file path!");
+                    e.printStackTrace();
+                }
+
+
+                Image image = new Image(stream);
+
+                ImageView imageView = new ImageView();
+
+                imageView.setImage(image);
+                imageView.setPreserveRatio(true);
+                balloons.add(imageView);
+                root.getChildren().add(imageView);
+            }
+        }
+
         public List<ImageView> getBalloonsList() { return this.balloons; }
 
         @Override
         public void run() {
-            for(ImageView b : balloons) {
-                applyAndPlayBalloonTransition(b, rawRoute, speed);
+            for(int i = 0; i < balloons.size(); i++) {
+                applyAndPlayBalloonTransition(balloons.get(i), rawRoute, balloonObjects[i].getSpeed());
 
                 try {
                     Thread.sleep(delay);

@@ -1,5 +1,7 @@
 package balloons.entities;
 
+import javafx.scene.image.ImageView;
+
 public class Balloon {
     
     private double xPosition; // rather than using a Point2D class, instead use fields for mutable operations!
@@ -51,12 +53,6 @@ public class Balloon {
                 "\n\tposition: ("+xPosition+","+yPosition+")\n}";
     }
 
+
     
-}
-
-
-
-class Round {
-
-    public Balloon createBlueBalloon() { return new Balloon(3,3,0,0,3); }
 }
