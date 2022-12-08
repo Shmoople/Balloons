@@ -6,6 +6,8 @@ import javafx.animation.PathTransition;
 import javafx.application.Application;
 import javafx.scene.Group; 
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -14,6 +16,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,9 +76,38 @@ public class App extends Application {
         primaryStage.show();
         // balloonTransition.play();
 
-        List<Circle> balloons = new ArrayList<Circle>();
+        List<ImageView> balloons = new ArrayList<ImageView>();
+
+        /* THIS CODE RIGHT HERE IS SUPER UNSAFE BUT WHATEVER LETS JUST HOPE THE RELATIVE PATH WORKS! */
+        InputStream stream = null; // get ready for a nullpointer exception...
+        try {
+            stream = new FileInputStream("./src/main/java/balloons/resources/images/Green Balloon.png");
+        } catch (FileNotFoundException e) {
+            // oh no...
+            System.out.println("Could not find the specified file with this file path!");
+            e.printStackTrace();
+        }
+        Image image = new Image(stream);
+
         for(int i = 0; i < 100; i++) {
-            balloons.add(new Circle(5,Color.BLUE));
+            /*
+             *  InputStream stream = new FileInputStream("D:\images\elephant.jpg");
+                Image image = new Image(stream);
+
+                //Creating the image view
+                ImageView imageView = new ImageView();
+
+                //Setting image to the image view
+                imageView.setImage(image);
+            */
+
+            ImageView imageView = new ImageView();
+            imageView.setImage(image);
+            imageView.setPreserveRatio(true);
+            imageView.setFitHeight(100);
+            imageView.setFitWidth(100);
+
+            balloons.add(imageView); // imageview shouldn't be that different than using a circle object (just need to load the image with a file loader class)
             root.getChildren().add(balloons.get(i));
             // applyAndPlayBalloonTransition(balloons.get(i), routePolyLine, .1);
             // try {
@@ -112,23 +146,23 @@ public class App extends Application {
 
     private class BalloonProducer implements Runnable {
 
-        private List<Circle> balloons;
+        private List<ImageView> balloons;
         private Polyline rawRoute;
         private double speed;
         private int delay;
 
-        public BalloonProducer(List<Circle> balloons, Polyline rawRoute, double speed, int delay) {
+        public BalloonProducer(List<ImageView> balloons, Polyline rawRoute, double speed, int delay) {
             this.balloons = balloons;
             this.rawRoute = rawRoute;
             this.speed = speed;
             this.delay = delay;
         }
 
-        public List<Circle> getBalloonsList() { return this.balloons; }
+        public List<ImageView> getBalloonsList() { return this.balloons; }
 
         @Override
         public void run() {
-            for(Circle b : balloons) {
+            for(ImageView b : balloons) {
                 applyAndPlayBalloonTransition(b, rawRoute, speed);
 
                 try {
@@ -151,7 +185,7 @@ public class App extends Application {
     //     }
     // }
     
-    public static Circle applyAndPlayBalloonTransition(Circle balloon, Polyline rawRoute, double speed) { // just treat circle objects as balloons, that is a pretty poor design pattern but whatever
+    public static ImageView applyAndPlayBalloonTransition(ImageView balloon, Polyline rawRoute, double speed) { // just treat circle objects as balloons, that is a pretty poor design pattern but whatever
         PathTransition balloonTransition = new PathTransition();
         balloonTransition.setNode(balloon);
         balloonTransition.setDuration(Duration.seconds(speed*(rawRoute.getPoints().size()/2))); // タイミング
