@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import balloons.entities.*;
 
 import balloons.entities.Balloon;
@@ -47,17 +49,10 @@ public class App extends Application {
 
         List<GraphPoint> route = routeFinder.findRoute(board.getBalloonGraph().getNode("19-0"),board.getBalloonGraph().getNode("0-19"));
 
-        Balloon balloon;
-        Circle balloonDisplay;
-
         displayBoard(root, board,3);
-        balloon = new Balloon(1,5);
-        balloonDisplay = new Circle(5,Color.GREEN);
-        root.getChildren().add(balloonDisplay);
-
-        // new AnimationHandle().start(); // display game
 
 
+        /* SETUP BACKGROUND */
         InputStream coolStream = null; // get ready for a nullpointer exception...
         try {
             coolStream = new FileInputStream("./src/main/java/balloons/resources/images/Finished_Background_for_bloons.png");
@@ -67,21 +62,26 @@ public class App extends Application {
             e.printStackTrace();
         }
 
-
         Image imageImage = new Image(coolStream);
-
         ImageView background = new ImageView();
         background.setPreserveRatio(true);
-
         background.setImage(imageImage);
-        
         root.getChildren().add(background);
 
+
+        /* SETUP BALLOONS */
         
         Polyline routePolyLine = graphPointRouteToPolyLine(route);
 
-        BalloonProducer bp = new BalloonProducer();
+        BalloonProducer bp = new BalloonProducer(root, balloons.entities.Round.S1R5, routePolyLine, 500);
         Thread balloonProducerThread = new Thread(bp);
+
+        Scene scene = new Scene(root);
+
+        primaryStage.setScene(scene);
+
+        primaryStage.show();
+        /* START SENDING BALLOONS */
         balloonProducerThread.start();
 
         // transition for the animation should be done with a single transition object... right?
@@ -116,21 +116,14 @@ public class App extends Application {
         private List<ImageView> balloons;
         private Balloon[] balloonObjects;
         private Polyline rawRoute;
-        private double speed;
         private int delay;
-
-        public BalloonProducer(Polyline rawRoute, double speed, int delay) {
-            this.balloons = balloons;
-            this.rawRoute = rawRoute;
-            this.speed = speed;
-            this.delay = delay;
-        }
 
         public BalloonProducer(Group root, Balloon[] balloonObjects, Polyline rawRoute, int delay) {
 
-            // this()
+            this.rawRoute = rawRoute;
+            this.delay = delay;
             this.balloonObjects = balloonObjects;
-            List<ImageView> balloons = new ArrayList<ImageView>();
+            this.balloons = new ArrayList<ImageView>();
 
             /* THIS CODE RIGHT HERE IS SUPER UNSAFE BUT WHATEVER LETS JUST HOPE THE RELATIVE PATH WORKS! */
 
@@ -170,7 +163,6 @@ public class App extends Application {
 
 
                 Image image = new Image(stream);
-
                 ImageView imageView = new ImageView();
 
                 imageView.setImage(image);
@@ -178,13 +170,18 @@ public class App extends Application {
                 balloons.add(imageView);
                 root.getChildren().add(imageView);
             }
+
         }
 
         public List<ImageView> getBalloonsList() { return this.balloons; }
 
         @Override
         public void run() {
-            for(int i = 0; i < balloons.size(); i++) {
+            System.out.println("Start of run!");
+            for(int i = 0; i < balloonObjects.length; i++) {
+
+                System.out.println("Inside for loop");
+
                 applyAndPlayBalloonTransition(balloons.get(i), rawRoute, balloonObjects[i].getSpeed());
 
                 try {
@@ -193,6 +190,10 @@ public class App extends Application {
                     /* Do nothing! */
                 }
             }
+
+            System.out.println("End of run!");
+
+
         }
     }
 
@@ -208,6 +209,7 @@ public class App extends Application {
     // }
     
     public static ImageView applyAndPlayBalloonTransition(ImageView balloon, Polyline rawRoute, double speed) { // just treat circle objects as balloons, that is a pretty poor design pattern but whatever
+
         PathTransition balloonTransition = new PathTransition();
         balloonTransition.setNode(balloon);
         balloonTransition.setDuration(Duration.seconds(speed*(rawRoute.getPoints().size()/2))); // タイミング
