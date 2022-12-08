@@ -140,8 +140,6 @@ public class App extends Application {
         Thread balloonProducerThread = new Thread(bp);
         balloonProducerThread.start();
 
-        double xpositionoffirstballoon = bp.getBalloonsList().get(0).getTranslateX();
-
         // transition for the animation should be done with a single transition object... right?
         // transition objects can only have one node that they're bound to, so it wouldn't make a whole lot of sense
 
