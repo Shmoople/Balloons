@@ -2,7 +2,8 @@ package balloons.entities;
 
 public class Round {
     
-    public static final Balloon[] S1R1 = { 
+    public static Balloon[][] rounds = { 
+        {
         createRedBalloon(),
         createRedBalloon(),
         createRedBalloon(),
@@ -13,9 +14,9 @@ public class Round {
         createRedBalloon(),
         createRedBalloon(),
         createRedBalloon()
-    };
-
-    public static final Balloon[] S1R2 = {
+        },
+    
+        {
         createRedBalloon(),
         createRedBalloon(),
         createRedBalloon(),
@@ -26,9 +27,9 @@ public class Round {
         createOrangeBalloon(),
         createOrangeBalloon(),
         createOrangeBalloon()
-    };
+        },
 
-    public static final Balloon[] S1R3 = {
+        {
         createOrangeBalloon(),
         createOrangeBalloon(),
         createOrangeBalloon(),
@@ -38,9 +39,9 @@ public class Round {
         createGreenBalloon(),
         createGreenBalloon(),
         createGreenBalloon()
-    };
+        },
 
-    public static final Balloon[] S1R4 = {
+        {
         createYellowBalloon(),
         createYellowBalloon(),
         createYellowBalloon(),
@@ -50,9 +51,9 @@ public class Round {
         createGreenBalloon(),
         createBlueBalloon(),
         createBlueBalloon()
-    };
+        },
 
-    public static final Balloon[] S1R5 = {
+        {
         createRedBalloon(),
         createRedBalloon(),
         createOrangeBalloon(),
@@ -65,9 +66,9 @@ public class Round {
         createBlueBalloon(),
         createPurpleBalloon(),
         createPurpleBalloon()
-    };
+        },
 
-    public static final Balloon[] S2R1 = { 
+        {
         createBlueBalloon(),
         createBlueBalloon(),
         createBlueBalloon(),
@@ -76,9 +77,9 @@ public class Round {
         createRedBalloon(),
         createRedBalloon(),
         createRedBalloon()
-    };
+        },
 
-    public static final Balloon[] S2R2 = {
+        {
         createYellowBalloon(),
         createYellowBalloon(),
         createGreenBalloon(),
@@ -87,17 +88,17 @@ public class Round {
         createPurpleBalloon(),
         createBlueBalloon(),
         createBlueBalloon()
-    };
+        },
 
-    public static final Balloon[] S2R3 = {
+        {
         createPurpleBalloon(),
         createPurpleBalloon(),
         createPurpleBalloon(),
         createPurpleBalloon(),
         createPurpleBalloon()
-    };
+        },
 
-    public static final Balloon[] S2R4 = {
+        {
         createPurpleBalloon(),
         createBlueBalloon(),
         createGreenBalloon(),
@@ -108,9 +109,9 @@ public class Round {
         createBlueBalloon(),
         createBlueBalloon(),
         createPurpleBalloon()
-    };
+        },
 
-    public static final Balloon[] S2R5 = {
+        {
         createBlueBalloon(),
         createBlueBalloon(),
         createBlueBalloon(),
@@ -121,9 +122,9 @@ public class Round {
         createPurpleBalloon(),
         createPurpleBalloon(),
         createPurpleBalloon()
-    };
+        },
 
-    public static final Balloon[] S3R1 = { 
+        {
         createOrangeBalloon(),
         createOrangeBalloon(),
         createOrangeBalloon(),
@@ -134,9 +135,9 @@ public class Round {
         createOrangeBalloon(),
         createOrangeBalloon(),
         createOrangeBalloon(),
-    };
+        },
 
-    public static final Balloon[] S3R2 = {
+        {
         createOrangeBalloon(),
         createOrangeBalloon(),
         createOrangeBalloon(),
@@ -147,9 +148,9 @@ public class Round {
         createYellowBalloon(),
         createYellowBalloon(),
         createYellowBalloon(),
-    };
+        },
 
-    public static final Balloon[] S3R3 = {
+        {
         createYellowBalloon(),
         createYellowBalloon(),
         createYellowBalloon(),
@@ -159,9 +160,9 @@ public class Round {
         createBlueBalloon(),
         createBlueBalloon(),
         createBlueBalloon(),
-    };
+        },
 
-    public static final Balloon[] S3R4 = {
+        {
         createPurpleBalloon(),
         createPurpleBalloon(),
         createPurpleBalloon(),
@@ -171,10 +172,9 @@ public class Round {
         createGreenBalloon(),
         createGreenBalloon(),
         createGreenBalloon(),
+        },
 
-    };
-
-    public static final Balloon[] S3R5 = {
+        {
         createPurpleBalloon(),
         createPurpleBalloon(),
         createPurpleBalloon(),
@@ -182,6 +182,7 @@ public class Round {
         createBlueBalloon(),
         createBlueBalloon(),
         createBlueBalloon(),
+        }
     };
 
     public static Balloon createRedBalloon() { return new Balloon(0.5,1,0,0,1); }

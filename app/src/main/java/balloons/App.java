@@ -106,7 +106,8 @@ public class App extends Application {
         
         Polyline routePolyLine = graphPointRouteToPolyLine(route1);
 
-        BalloonProducer bp = new BalloonProducer(root, balloons.entities.Round.S2R5, routePolyLine, 500);
+        BalloonProducer bp = new BalloonProducer(root, Utils.twoDConvert(Round.rounds), routePolyLine, 500);
+
         Thread balloonProducerThread = new Thread(bp);
 
         Scene scene = new Scene(root);
@@ -182,21 +183,27 @@ public class App extends Application {
                 balloons.add(imageView);
                 root.getChildren().add(imageView);
             }
-
         }
 
         public List<ImageView> getBalloonsList() { return this.balloons; }
 
         @Override
         public void run() {
-            for(int i = 0; i < balloonObjects.length; i++) {
+            while(true) {
+                for(int i = 0; i < balloonObjects.length; i++) {
 
-                applyAndPlayBalloonTransition(balloons.get(i), rawRoute, balloonObjects[i].getSpeed(),balloonObjects[i].getHitPoints()).setOnFinished(new BalloonReachedEndOfTrackHandler());
+                    applyAndPlayBalloonTransition(balloons.get(i), rawRoute, balloonObjects[i].getSpeed(),balloonObjects[i].getHitPoints()).setOnFinished(new BalloonReachedEndOfTrackHandler(balloons.get(i)));
 
-                try {
-                    Thread.sleep(delay);
-                } catch(InterruptedException e) {
-                    /* Do nothing! */
+                    try {
+    
+                        if(i % 15 == 0) {
+                            Thread.sleep(5000);
+                        }
+
+                       Thread.sleep(delay);
+                    } catch(InterruptedException e) {
+                        /* Do nothing! */
+                    }
                 }
             }
 
@@ -290,11 +297,46 @@ class BalloonOnClickEventHandler implements EventHandler<MouseEvent> {
 
 class BalloonReachedEndOfTrackHandler implements EventHandler<ActionEvent> {
 
+    private ImageView balloonDisplayObject;
+
+    public BalloonReachedEndOfTrackHandler(ImageView balloonDisplayObject) {
+        this.balloonDisplayObject = balloonDisplayObject;
+    }
     @Override
     public void handle(ActionEvent event) {
+        
         App.playerHealth--;
         System.out.println("Health: "+App.playerHealth);
+        balloonDisplayObject.setVisible(false); // hide the balloon at the end of track
     }
 }
 
+class Utils {
+
+    public static Balloon[] twoDConvert(Balloon[][] nums) {
+        Balloon[] combined = new Balloon[size(nums)];
+
+        if (combined.length <= 0) {
+            return combined;
+        }
+        int index = 0;
+
+        for (int row = 0; row < nums.length; row++) {
+            for (int column = 0; column < nums[row].length; column++) {
+                combined[index++] = nums[row][column];
+            }
+        }
+        return combined;
+    }
+
+    private static int size(Balloon[][] values) {
+        int size = 0;
+
+        for (int index = 0; index < values.length; index++) {
+            size += values[index].length;
+        }
+        return size;
+    }
+
+}
 // 無
