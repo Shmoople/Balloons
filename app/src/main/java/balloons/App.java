@@ -3,6 +3,9 @@ package balloons;
 import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Group; 
 import javafx.scene.Scene;
@@ -20,6 +23,7 @@ import javafx.util.Duration;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.ObjectInputFilter.Status;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +43,8 @@ import balloons.astar.*;
  */
 public class App extends Application {
 
+
+    static int playerHealth = 100;
 
     @Override
     public void start(Stage primaryStage) { // this gets run
@@ -183,12 +189,9 @@ public class App extends Application {
 
         @Override
         public void run() {
-            System.out.println("Start of run!");
             for(int i = 0; i < balloonObjects.length; i++) {
 
-                System.out.println("Inside for loop");
-
-                applyAndPlayBalloonTransition(balloons.get(i), rawRoute, balloonObjects[i].getSpeed(),balloonObjects[i].getHitPoints());
+                applyAndPlayBalloonTransition(balloons.get(i), rawRoute, balloonObjects[i].getSpeed(),balloonObjects[i].getHitPoints()).setOnFinished(new BalloonReachedEndOfTrackHandler());
 
                 try {
                     Thread.sleep(delay);
@@ -197,13 +200,10 @@ public class App extends Application {
                 }
             }
 
-            System.out.println("End of run!");
-
-
         }
     }
     
-    public static ImageView applyAndPlayBalloonTransition(ImageView balloon, Polyline rawRoute, double speed, int health) { // just treat circle objects as balloons, that is a pretty poor design pattern but whatever
+    public static PathTransition applyAndPlayBalloonTransition(ImageView balloon, Polyline rawRoute, double speed, int health) { // just treat circle objects as balloons, that is a pretty poor design pattern but whatever
 
         PathTransition balloonTransition = new PathTransition();
         balloonTransition.setNode(balloon);
@@ -213,8 +213,8 @@ public class App extends Application {
         balloon.visibleProperty().set(true);
         balloonTransition.play();
 
-        balloon.setOnMouseClicked(new BalloonOnClickEventHandler(balloon, health));
-        return balloon; // return passed Circle for method chaining
+        balloon.setOnMouseClicked(new BalloonOnClickEventHandler(balloon, balloonTransition, health));
+        return balloonTransition; // return passed Circle for method chaining
     }
 
     
@@ -270,10 +270,12 @@ class BalloonOnClickEventHandler implements EventHandler<MouseEvent> {
 
     private Integer hitPoints;
     private ImageView balloon;
+    private PathTransition pathTransition;
 
-    public BalloonOnClickEventHandler(ImageView balloon, Integer hitPoints) {
+    public BalloonOnClickEventHandler(ImageView balloon, PathTransition pathTransition, Integer hitPoints) {
         this.hitPoints = hitPoints;
         this.balloon = balloon;
+        this.pathTransition = pathTransition;
     }
     @Override
     public void handle(MouseEvent event) {
@@ -281,7 +283,17 @@ class BalloonOnClickEventHandler implements EventHandler<MouseEvent> {
         hitPoints--;
         if(hitPoints <= 0) {
             balloon.visibleProperty().set(false);
+            pathTransition.stop(); // stop the transition when the balloon is killed
         }
+    }
+}
+
+class BalloonReachedEndOfTrackHandler implements EventHandler<ActionEvent> {
+
+    @Override
+    public void handle(ActionEvent event) {
+        App.playerHealth--;
+        System.out.println("Health: "+App.playerHealth);
     }
 }
 
